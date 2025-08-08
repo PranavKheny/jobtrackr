@@ -2,6 +2,10 @@
 
 JobTrackr is a full-stack web application that helps users organize and track their job applications in one place.
 
+[**Live Demo**](https://jobtrackr.app) | [**Report a Bug**](https://github.com/your-username/job-trackr/issues) | [**Request a Feature**](https://github.com/your-username/job-trackr/issues)
+
+---
+
 ![Screenshot of JobTrackr Dashboard](https://via.placeholder.com/1200x600.png?text=JobTrackr+Dashboard+Screenshot)
 
 ## Features
@@ -31,6 +35,13 @@ JobTrackr is a full-stack web application that helps users organize and track th
 - **Authentication**: [Supabase](https://supabase.io/)
 - **Deployment**: [Vercel](https://vercel.com/) (Frontend), [Render](https://render.com/) (Backend & Database)
 - **Dev Tools**: [Docker](https://www.docker.com/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [GitHub Actions](https://github.com/features/actions)
+
+## Live Demo
+
+You can try out a live, read-only version of JobTrackr here:
+
+- **URL**: [https://jobtrackr.app](https://jobtrackr.app) (Replace with your deployed URL)
+- **Login**: Use the email `demo@example.com` to sign in with a magic link.
 
 ## Local Development
 
@@ -68,32 +79,6 @@ To run JobTrackr locally, you will need Node.js, npm, and Docker installed.
     - Run the backend API: `npm run api:dev`
     - Run the frontend web app: `npm run dev`
 
-## Power User Features
-
-The dashboard supports several URL query parameters to filter, sort, and paginate the job list:
-- `status`: Filter by one or more statuses (comma-separated). Example: `?status=APPLIED,INTERVIEWING`
-- `q`: Search for a term across job titles, companies, locations, and notes.
-- `sort`: Sort by `createdAt`, `appliedAt`, `status`, or `company`.
-- `order`: `asc` or `desc`.
-- `page`: The page number to display.
-- `pageSize`: The number of items per page.
-
-## Seeding the Database
-
-You can seed the database with sample data using the following command:
-```bash
-npm run seed
-```
-This is useful for development and for populating a new database for the demo mode.
-
-## Demo Mode
-
-JobTrackr supports a read-only demo mode. To enable it, set the following environment variables:
-- `DEMO_MODE=true`
-- `NEXT_PUBLIC_DEMO_MODE=true`
-
-In demo mode, all write operations (creating, updating, deleting jobs) are disabled, and a banner is displayed at the top of the page.
-
 ## Deployment
 
 ### Frontend (Vercel)
@@ -109,6 +94,36 @@ In demo mode, all write operations (creating, updating, deleting jobs) are disab
 2.  Go to [Render](https://render.com/) and create a new "Blueprint" service.
 3.  Connect your repository. Render will use the `render.yaml` file to configure the services.
 4.  Add the required environment variables in the Render service settings.
+
+## Final Quality Checklist
+
+Before launching, it's recommended to perform the following checks in a production-like environment:
+
+- [ ] **Deployment:**
+  - [ ] Frontend on Vercel builds and deploys successfully.
+  - [ ] Backend on Render builds and deploys successfully.
+  - [ ] Database migrations run automatically on backend deployment.
+- [ ] **Functionality:**
+  - [ ] User can sign up and log in via magic link.
+  - [ ] All CRUD operations for jobs (Create, Read, Update, Delete) work as expected.
+  - [ ] Dashboard analytics display correct data.
+  - [ ] Job list filtering, searching, and sorting work correctly.
+  - [ ] CSV export generates a correctly formatted file with all jobs.
+- [ ] **Demo Mode:**
+  - [ ] Enable demo mode and verify that the banner is displayed.
+  - [ ] Confirm that all write operations are disabled in demo mode.
+- [ ] **Responsiveness:**
+  - [ ] Test the application on various screen sizes (mobile, tablet, desktop) to ensure the layout is consistent and usable.
+- [ ] **Cross-Browser Testing:**
+  - [ ] Test the application in major browsers (Chrome, Firefox, Safari) to ensure compatibility.
+
+## Future Roadmap
+
+- **AI-Powered Suggestions**: Integrate AI to provide suggestions for resume keywords or cover letter improvements based on job descriptions.
+- **Calendar Integration**: Allow users to sync interview dates with their Google or Outlook calendars.
+- **Multi-user/Teams**: Introduce a team-based version for recruiters or career coaches.
+- **File Uploads**: Allow users to upload and attach resumes, cover letters, and other documents to each job application.
+- **Advanced Analytics**: More detailed analytics, such as time-to-offer, interview success rate, and more.
 
 ## Environment Variables
 
