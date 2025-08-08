@@ -7,6 +7,7 @@ JobTrackr is a full-stack web application that helps users organize and track th
 - **Frontend**: [Next.js](https://nextjs.org/), [TypeScript](https://www.typescriptlang.org/), [TailwindCSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/)
 - **Backend**: [Node.js](https://nodejs.org/), [Express](https://expressjs.com/)
 - **Database**: [PostgreSQL](https://www.postgresql.org/), [Prisma](https://www.prisma.io/)
+- **Authentication**: [Supabase](https://supabase.io/)
 - **Dev Tools**: [Docker](https://www.docker.com/), [ESLint](https://eslint.org/), [Prettier](https://prettier.io/)
 
 ## Getting Started
@@ -15,16 +16,26 @@ JobTrackr is a full-stack web application that helps users organize and track th
     ```bash
     git clone https://github.com/your-username/job-trackr.git
     ```
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+2.  **Set up Supabase**
+    - Create a new project on [Supabase](https://supabase.io/).
+    - Go to the "Authentication" section and enable the Email provider.
+    - Go to the "Database" section and get your database connection string.
+    - Go to the "API" section and get your project URL and anon key.
+
 3.  **Set up environment variables**
-    - Copy the `.env.example` file to `.env` and fill in the required values.
+    - Copy the `.env.example` file to `.env` and fill in the required values for the database and Supabase.
     ```bash
     cp .env.example .env
     ```
-4.  **Run the development servers**
+4.  **Install dependencies**
+    ```bash
+    npm install
+    ```
+5.  **Run the database migrations**
+    ```bash
+    npx prisma migrate dev
+    ```
+6.  **Run the development servers**
     ```bash
     docker-compose up -d
     ```
