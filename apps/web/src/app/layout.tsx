@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import { ToastProvider } from "@/components/Toast";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { AuthProvider } from "@/components/AuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,14 +36,16 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`bg-background text-foreground ${inter.className}`}>
-        <ErrorBoundary>
-          <ToastProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow container mx-auto p-4">{children}</main>
-            </div>
-          </ToastProvider>
-        </ErrorBoundary>
+        <AuthProvider>
+          <ErrorBoundary>
+            <ToastProvider>
+              <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-grow container mx-auto p-4">{children}</main>
+              </div>
+            </ToastProvider>
+          </ErrorBoundary>
+        </AuthProvider>
       </body>
     </html>
   );

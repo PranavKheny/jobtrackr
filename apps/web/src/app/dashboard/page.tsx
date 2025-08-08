@@ -11,6 +11,7 @@ import { downloadJobsCSV } from '@/lib/csv'
 import { useToast } from '@/components/Toast'
 import JobControls from '@/components/JobControls'
 import Pagination from '@/components/Pagination'
+import { Button } from '@/components/ui/Button'
 
 function DashboardContent() {
   const searchParams = useSearchParams()
@@ -97,30 +98,26 @@ function DashboardContent() {
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <div className="flex gap-4">
-            <button
+            <Button
               onClick={handleDownload}
-              className="bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-secondary/90"
+              variant="secondary"
             >
               Download CSV
-            </button>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
-            >
+            </Button>
+            <Button onClick={() => setIsModalOpen(true)}>
               Add New Job
-            </button>
+            </Button>
           </div>
         </div>
 
         <Analytics />
         <JobControls />
 
-        {isModalOpen && (
-          <JobForm
-            onJobCreated={handleJobCreated}
-            onClose={() => setIsModalOpen(false)}
-          />
-        )}
+        <JobForm
+          isOpen={isModalOpen}
+          onJobCreated={handleJobCreated}
+          onClose={() => setIsModalOpen(false)}
+        />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (

@@ -18,6 +18,8 @@ JobTrackr is a full-stack web application that helps users organize and track th
 - **Pagination**: Paginated job list for better performance.
 - **Optimistic UI**: Smooth user experience with optimistic updates for job operations.
 - **Demo Mode**: A read-only demo mode to showcase the application.
+- **Component Library**: A small library of reusable UI components for a consistent look and feel.
+- **Form Validation**: Robust form validation using `react-hook-form` and `zod`.
 
 ## Accessibility & UX
 
@@ -29,7 +31,7 @@ JobTrackr is a full-stack web application that helps users organize and track th
 
 ## Tech Stack
 
-- **Frontend**: [Next.js](https://nextjs.org/), [TypeScript](https://www.typescriptlang.org/), [TailwindCSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/)
+- **Frontend**: [Next.js](https://nextjs.org/), [TypeScript](https://www.typescriptlang.org/), [TailwindCSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/), [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/)
 - **Backend**: [Node.js](https://nodejs.org/), [Express](https://expressjs.com/)
 - **Database**: [PostgreSQL](https://www.postgresql.org/), [Prisma](https://www.prisma.io/)
 - **Authentication**: [Supabase](https://supabase.io/)

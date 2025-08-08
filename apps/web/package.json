@@ -18,7 +18,14 @@
     "@supabase/ssr": "^0.3.0",
     "recharts": "^2.12.7",
     "papaparse": "^5.4.1",
-    "use-debounce": "^10.0.1"
+    "use-debounce": "^10.0.1",
+    "react-hook-form": "^7.51.2",
+    "zod": "^3.22.4",
+    "@hookform/resolvers": "^3.3.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "tailwind-merge": "^2.2.2",
+    "lucide-react": "^0.363.0"
   },
   "devDependencies": {
     "@types/node": "^20",

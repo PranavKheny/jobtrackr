@@ -2,6 +2,9 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useDebouncedCallback } from 'use-debounce'
+import { Input } from './ui/Input'
+import { Select } from './ui/Select'
+import { Button } from './ui/Button'
 
 const statusOptions = ['APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED']
 const sortOptions = [
@@ -46,45 +49,44 @@ export default function JobControls() {
 
   return (
     <div className="space-y-4">
-      <input
+      <Input
         type="text"
         placeholder="Search jobs..."
         aria-label="Search jobs"
         onChange={(e) => handleSearch(e.target.value)}
         defaultValue={searchParams.get('q')?.toString()}
-        className="w-full p-2 bg-input rounded-md"
       />
       <div className="flex items-center justify-between">
         <div className="flex gap-2" role="group" aria-label="Filter by status">
           {statusOptions.map((status) => (
-            <button
+            <Button
               key={status}
+              variant={
+                searchParams.get('status')?.includes(status)
+                  ? 'default'
+                  : 'secondary'
+              }
+              size="sm"
               onClick={() => handleStatusChange(status)}
               aria-pressed={searchParams.get('status')?.includes(status)}
-              className={`px-3 py-1 text-sm rounded-full ${
-                searchParams.get('status')?.includes(status)
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-secondary'
-              }`}
             >
               {status}
-            </button>
+            </Button>
           ))}
         </div>
-        <select
+        <Select
           aria-label="Sort by"
           onChange={(e) => handleSortChange(e.target.value)}
           defaultValue={`${searchParams.get('sort') || 'createdAt'},${
             searchParams.get('order') || 'desc'
           }`}
-          className="p-2 bg-input rounded-md"
         >
           {sortOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
     </div>
   )

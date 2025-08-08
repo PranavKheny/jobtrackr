@@ -1,131 +1,94 @@
 'use client'
 
-import { useState } from 'react'
-import { createJob, updateJob } from '@/lib/api'
-import { motion } from 'framer-motion'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import { useToast } from './Toast'
+import { Modal } from './ui/Modal'
+import { Button } from './ui/Button'
+import { Input } from './ui/Input'
+import { Select } from './ui/Select'
+
+const jobSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  company: z.string().min(1, 'Company is required'),
+  location: z.string().optional(),
+  status: z.enum(['APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED']),
+  notes: z.string().optional(),
+})
 
 export default function JobForm({
   job,
   onJobCreated,
   onJobUpdated,
   onClose,
+  isOpen,
 }: any) {
-  const [formData, setFormData] = useState({
-    title: job?.title || '',
-    company: job?.company || '',
-    location: job?.location || '',
-    status: job?.status || 'APPLIED',
-    notes: job?.notes || '',
+  const { addToast } = useToast()
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(jobSchema),
+    defaultValues: {
+      title: job?.title || '',
+      company: job?.company || '',
+      location: job?.location || '',
+      status: job?.status || 'APPLIED',
+      notes: job?.notes || '',
+    },
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleChange = (e: any) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = async (e: any) => {
-    e.preventDefault()
-    setIsSubmitting(true)
+  const onSubmit = async (data: any) => {
     try {
       if (job) {
-        const updated = await updateJob(job.id, formData)
-        onJobUpdated(updated)
+        await onJobUpdated(job.id, data)
       } else {
-        const newJob = await createJob(formData)
-        onJobCreated(newJob)
+        await onJobCreated(data)
       }
       onClose()
     } catch (error) {
       // Error is handled by optimistic UI in the dashboard
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 20, opacity: 0 }}
-        className="bg-card p-8 rounded-lg w-full max-w-md"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="form-title"
-      >
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 id="form-title" className="text-2xl font-bold">
-            {job ? 'Edit Job' : 'Add New Job'}
-          </h2>
-          <input
-            name="title"
-            aria-label="Job Title"
-            value={formData.title}
-            onChange={handleChange}
-            placeholder="Job Title"
-            required
-            className="w-full p-2 bg-input rounded-md"
-          />
-          <input
-            name="company"
-            aria-label="Company"
-            value={formData.company}
-            onChange={handleChange}
-            placeholder="Company"
-            required
-            className="w-full p-2 bg-input rounded-md"
-          />
-          <input
-            name="location"
-            aria-label="Location"
-            value={formData.location}
-            onChange={handleChange}
-            placeholder="Location"
-            className="w-full p-2 bg-input rounded-md"
-          />
-          <select
-            name="status"
-            aria-label="Job Status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full p-2 bg-input rounded-md"
-          >
-            <option value="APPLIED">Applied</option>
-            <option value="INTERVIEWING">Interviewing</option>
-            <option value="REJECTED">Rejected</option>
-            <option value="OFFER">Offer</option>
-          </select>
-          <textarea
-            name="notes"
-            aria-label="Notes"
-            value={formData.notes}
-            onChange={handleChange}
-            placeholder="Notes"
-            className="w-full p-2 bg-input rounded-md"
-          />
-          <div className="flex gap-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-secondary/90"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50"
-            >
-              {isSubmitting
-                ? 'Saving...'
-                : job
-                ? 'Update Job'
-                : 'Add Job'}
-            </button>
-          </div>
-        </form>
-      </motion.div>
-    </div>
+    <Modal isOpen={isOpen} onClose={onClose} title={job ? 'Edit Job' : 'Add New Job'}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <Input {...register('title')} placeholder="Job Title" />
+          {errors.title && (
+            <p className="text-sm text-red-500 mt-1">{errors.title.message as string}</p>
+          )}
+        </div>
+        <div>
+          <Input {...register('company')} placeholder="Company" />
+          {errors.company && (
+            <p className="text-sm text-red-500 mt-1">{errors.company.message as string}</p>
+          )}
+        </div>
+        <Input {...register('location')} placeholder="Location" />
+        <Select {...register('status')}>
+          <option value="APPLIED">Applied</option>
+          <option value="INTERVIEWING">Interviewing</option>
+          <option value="REJECTED">Rejected</option>
+          <option value="OFFER">Offer</option>
+        </Select>
+        <textarea
+          {...register('notes')}
+          placeholder="Notes"
+          className="w-full p-2 bg-input rounded-md"
+        />
+        <div className="flex gap-4">
+          <Button type="button" variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : job ? 'Update Job' : 'Add Job'}
+          </Button>
+        </div>
+      </form>
+    </Modal>
   )
 }
