@@ -16,10 +16,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Header />
-        <main>{children}</main>
+    <html lang="en" className="dark">
+      <body className={`bg-background text-foreground ${inter.className}`}>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow container mx-auto p-4">{children}</main>
+        </div>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 export default function Header() {
   const router = useRouter()
@@ -13,18 +14,23 @@ export default function Header() {
   }
 
   return (
-    <header>
-      <nav>
-        <ul>
-          <li>
-            <a href="/">Home</a>
-          </li>
-          <li>
-            <a href="/dashboard">Dashboard</a>
-          </li>
-        </ul>
-      </nav>
-      <button onClick={handleSignOut}>Sign Out</button>
+    <header className="border-b">
+      <div className="container mx-auto flex items-center justify-between p-4">
+        <Link href="/" className="text-2xl font-bold">
+          JobTrackr
+        </Link>
+        <nav className="flex items-center gap-4">
+          <Link href="/dashboard" className="text-muted-foreground hover:text-foreground">
+            Dashboard
+          </Link>
+          <button
+            onClick={handleSignOut}
+            className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
+          >
+            Sign Out
+          </button>
+        </nav>
+      </div>
     </header>
   )
 }

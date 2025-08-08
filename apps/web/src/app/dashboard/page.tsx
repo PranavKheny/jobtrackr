@@ -51,11 +51,26 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute>
-      <div>
-        <h1>Dashboard</h1>
+      <div className="space-y-8">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <div className="flex gap-4">
+            <button
+              onClick={handleDownload}
+              className="bg-secondary text-secondary-foreground px-4 py-2 rounded-md hover:bg-secondary/90"
+            >
+              Download CSV
+            </button>
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
+            >
+              Add New Job
+            </button>
+          </div>
+        </div>
+
         <Analytics />
-        <button onClick={() => setIsModalOpen(true)}>Add New Job</button>
-        <button onClick={handleDownload}>Download CSV</button>
 
         {isModalOpen && (
           <JobForm
@@ -64,22 +79,27 @@ export default function DashboardPage() {
           />
         )}
 
-        {loading ? (
-          <p>Loading jobs...</p>
-        ) : jobs.length === 0 ? (
-          <p>No jobs found. Add one to get started!</p>
-        ) : (
-          <div>
-            {jobs.map((job: any) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {loading ? (
+            <p>Loading jobs...</p>
+          ) : jobs.length === 0 ? (
+            <div className="col-span-full text-center py-16">
+              <h2 className="text-2xl font-semibold">No jobs yet</h2>
+              <p className="text-muted-foreground">
+                Add your first job to get started.
+              </p>
+            </div>
+          ) : (
+            jobs.map((job: any) => (
               <JobItem
                 key={job.id}
                 job={job}
                 onJobUpdated={handleJobUpdated}
                 onJobDeleted={handleJobDeleted}
               />
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </ProtectedRoute>
   )
