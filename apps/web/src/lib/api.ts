@@ -47,3 +47,9 @@ export const deleteJob = async (id: number) => {
     headers,
   })
 }
+
+export const getJobStats = async () => {
+  const headers = await getHeaders()
+  const res = await fetch(`${API_URL}/api/jobs/stats`, { headers })
+  return res.json()
+}

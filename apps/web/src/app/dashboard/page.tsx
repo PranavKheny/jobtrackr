@@ -5,6 +5,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import { getJobs } from '@/lib/api'
 import JobItem from '@/components/JobItem'
 import JobForm from '@/components/JobForm'
+import Analytics from '@/components/Analytics'
 
 export default function DashboardPage() {
   const [jobs, setJobs] = useState([])
@@ -43,6 +44,7 @@ export default function DashboardPage() {
     <ProtectedRoute>
       <div>
         <h1>Dashboard</h1>
+        <Analytics />
         <button onClick={() => setIsModalOpen(true)}>Add New Job</button>
 
         {isModalOpen && (

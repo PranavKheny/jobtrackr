@@ -59,4 +59,32 @@ router.delete('/:id', protect, async (req, res) => {
   res.json({ message: 'Job deleted' })
 })
 
+// Get job stats
+router.get('/stats', protect, async (req, res) => {
+  // @ts-ignore
+  const userId = req.user.id
+
+  const stats = await prisma.job.groupBy({
+    by: ['status'],
+    where: { userId },
+    _count: {
+      status: true,
+    },
+  })
+
+  const totalJobs = await prisma.job.count({
+    where: { userId },
+  })
+
+  const offerCount =
+    stats.find((s) => s.status === 'OFFER')?._count.status || 0
+  const offerRate = totalJobs > 0 ? (offerCount / totalJobs) * 100 : 0
+
+  res.json({
+    stats,
+    totalJobs,
+    offerRate,
+  })
+})
+
 export default router

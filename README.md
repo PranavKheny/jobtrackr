@@ -52,6 +52,7 @@ All job-related endpoints are protected and require a valid Supabase JWT.
 - `POST /api/jobs`: Add a new job.
 - `PUT /api/jobs/:id`: Update a job.
 - `DELETE /api/jobs/:id`: Delete a job.
+- `GET /api/jobs/stats`: Fetch job application statistics.
 
 ## Available Scripts
 
