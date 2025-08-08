@@ -3,11 +3,13 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { motion } from 'framer-motion'
+import { useToast } from '@/components/Toast'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const supabase = createClient()
+  const { addToast } = useToast()
 
   const handleLogin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -15,12 +17,11 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${location.origin}/auth/callback`,
+        emailRedirectTo: 'http://localhost:3000/auth/callback',
       },
     })
     if (error) {
-      console.error(error)
-      // TODO: Handle error
+      addToast('Failed to send magic link. Please try again.', 'error')
     } else {
       setSubmitted(true)
     }

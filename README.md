@@ -89,6 +89,7 @@ To run JobTrackr locally, you will need Node.js, npm, and Docker installed.
 2.  Go to [Vercel](https://vercel.com/new) and connect your new repository.
 3.  Vercel will automatically detect that this is a Next.js application and configure the build settings.
 4.  Add the required environment variables in the Vercel project settings.
+5.  **Important:** In your Supabase project settings (Authentication > URL Configuration), add `http://localhost:3000/auth/callback` to your "Redirect URLs". For your deployed Vercel site, you will need to add its URL as well (e.g., `https://your-site.vercel.app/auth/callback`).
 
 ### Backend & Database (Render)
 
