@@ -2,6 +2,13 @@
 
 JobTrackr is a full-stack web application that helps users organize and track their job applications in one place.
 
+## Features
+
+- **Authentication**: Secure email-based login with magic links via Supabase.
+- **Job Management**: Full CRUD functionality for job applications.
+- **Analytics**: Dashboard with a visual summary of job application activity.
+- **CSV Export**: Export all job applications to a CSV file.
+
 ## Tech Stack
 
 - **Frontend**: [Next.js](https://nextjs.org/), [TypeScript](https://www.typescriptlang.org/), [TailwindCSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/)
