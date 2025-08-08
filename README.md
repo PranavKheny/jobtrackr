@@ -15,6 +15,14 @@ JobTrackr is a full-stack web application that helps users organize and track th
 - **Optimistic UI**: Smooth user experience with optimistic updates for job operations.
 - **Demo Mode**: A read-only demo mode to showcase the application.
 
+## Accessibility & UX
+
+- **ARIA Labels**: All interactive elements have appropriate ARIA labels for screen reader support.
+- **Keyboard Navigation**: All major flows are fully navigable using only the keyboard.
+- **Color Contrast**: The color palette meets WCAG AA standards for readability.
+- **Error Handling**: Graceful error handling with a global error boundary and user-friendly toast notifications.
+- **Edge Cases**: Empty and no-results states are handled gracefully to provide a better user experience.
+
 ## Tech Stack
 
 - **Frontend**: [Next.js](https://nextjs.org/), [TypeScript](https://www.typescriptlang.org/), [TailwindCSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/)

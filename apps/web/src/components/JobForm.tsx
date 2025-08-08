@@ -17,6 +17,7 @@ export default function JobForm({
     status: job?.status || 'APPLIED',
     notes: job?.notes || '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (e: any) => {
     const { name, value } = e.target
@@ -25,28 +26,41 @@ export default function JobForm({
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
-    if (job) {
-      const updated = await updateJob(job.id, formData)
-      onJobUpdated(updated)
-    } else {
-      const newJob = await createJob(formData)
-      onJobCreated(newJob)
+    setIsSubmitting(true)
+    try {
+      if (job) {
+        const updated = await updateJob(job.id, formData)
+        onJobUpdated(updated)
+      } else {
+        const newJob = await createJob(formData)
+        onJobCreated(newJob)
+      }
+      onClose()
+    } catch (error) {
+      // Error is handled by optimistic UI in the dashboard
+    } finally {
+      setIsSubmitting(false)
     }
-    onClose()
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <motion.div
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         exit={{ y: 20, opacity: 0 }}
         className="bg-card p-8 rounded-lg w-full max-w-md"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="form-title"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <h2 className="text-2xl font-bold">{job ? 'Edit Job' : 'Add New Job'}</h2>
+          <h2 id="form-title" className="text-2xl font-bold">
+            {job ? 'Edit Job' : 'Add New Job'}
+          </h2>
           <input
             name="title"
+            aria-label="Job Title"
             value={formData.title}
             onChange={handleChange}
             placeholder="Job Title"
@@ -55,6 +69,7 @@ export default function JobForm({
           />
           <input
             name="company"
+            aria-label="Company"
             value={formData.company}
             onChange={handleChange}
             placeholder="Company"
@@ -63,6 +78,7 @@ export default function JobForm({
           />
           <input
             name="location"
+            aria-label="Location"
             value={formData.location}
             onChange={handleChange}
             placeholder="Location"
@@ -70,6 +86,7 @@ export default function JobForm({
           />
           <select
             name="status"
+            aria-label="Job Status"
             value={formData.status}
             onChange={handleChange}
             className="w-full p-2 bg-input rounded-md"
@@ -81,6 +98,7 @@ export default function JobForm({
           </select>
           <textarea
             name="notes"
+            aria-label="Notes"
             value={formData.notes}
             onChange={handleChange}
             placeholder="Notes"
@@ -96,9 +114,14 @@ export default function JobForm({
             </button>
             <button
               type="submit"
-              className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90"
+              disabled={isSubmitting}
+              className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md hover:bg-primary/90 disabled:opacity-50"
             >
-              {job ? 'Update Job' : 'Add Job'}
+              {isSubmitting
+                ? 'Saving...'
+                : job
+                ? 'Update Job'
+                : 'Add Job'}
             </button>
           </div>
         </form>

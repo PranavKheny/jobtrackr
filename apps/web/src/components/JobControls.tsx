@@ -49,16 +49,18 @@ export default function JobControls() {
       <input
         type="text"
         placeholder="Search jobs..."
+        aria-label="Search jobs"
         onChange={(e) => handleSearch(e.target.value)}
         defaultValue={searchParams.get('q')?.toString()}
         className="w-full p-2 bg-input rounded-md"
       />
       <div className="flex items-center justify-between">
-        <div className="flex gap-2">
+        <div className="flex gap-2" role="group" aria-label="Filter by status">
           {statusOptions.map((status) => (
             <button
               key={status}
               onClick={() => handleStatusChange(status)}
+              aria-pressed={searchParams.get('status')?.includes(status)}
               className={`px-3 py-1 text-sm rounded-full ${
                 searchParams.get('status')?.includes(status)
                   ? 'bg-primary text-primary-foreground'
@@ -70,6 +72,7 @@ export default function JobControls() {
           ))}
         </div>
         <select
+          aria-label="Sort by"
           onChange={(e) => handleSortChange(e.target.value)}
           defaultValue={`${searchParams.get('sort') || 'createdAt'},${
             searchParams.get('order') || 'desc'
