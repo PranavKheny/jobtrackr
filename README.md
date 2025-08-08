@@ -10,6 +10,9 @@ JobTrackr is a full-stack web application that helps users organize and track th
 - **Job Management**: Full CRUD functionality for job applications.
 - **Analytics**: Dashboard with a visual summary of job application activity.
 - **CSV Export**: Export all job applications to a CSV file.
+- **Advanced Filtering & Sorting**: Filter jobs by status, search by keyword, and sort by various criteria.
+- **Pagination**: Paginated job list for better performance.
+- **Optimistic UI**: Smooth user experience with optimistic updates for job operations.
 - **Demo Mode**: A read-only demo mode to showcase the application.
 
 ## Tech Stack
@@ -56,6 +59,16 @@ To run JobTrackr locally, you will need Node.js, npm, and Docker installed.
     - You will need to have PostgreSQL running on your machine.
     - Run the backend API: `npm run api:dev`
     - Run the frontend web app: `npm run dev`
+
+## Power User Features
+
+The dashboard supports several URL query parameters to filter, sort, and paginate the job list:
+- `status`: Filter by one or more statuses (comma-separated). Example: `?status=APPLIED,INTERVIEWING`
+- `q`: Search for a term across job titles, companies, locations, and notes.
+- `sort`: Sort by `createdAt`, `appliedAt`, `status`, or `company`.
+- `order`: `asc` or `desc`.
+- `page`: The page number to display.
+- `pageSize`: The number of items per page.
 
 ## Seeding the Database
 

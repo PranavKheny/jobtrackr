@@ -14,9 +14,10 @@ const getHeaders = async () => {
 
 const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
 
-export const getJobs = async () => {
+export const getJobs = async (params: any) => {
   const headers = await getHeaders()
-  const res = await fetch(`${API_URL}/api/jobs`, { headers })
+  const query = new URLSearchParams(params).toString()
+  const res = await fetch(`${API_URL}/api/jobs?${query}`, { headers })
   return res.json()
 }
 

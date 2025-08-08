@@ -1,44 +1,86 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'
-import { getJobs } from '@/lib/api'
+import { getJobs, createJob, updateJob, deleteJob } from '@/lib/api'
 import JobItem from '@/components/JobItem'
 import JobForm from '@/components/JobForm'
 import Analytics from '@/components/Analytics'
 import { downloadJobsCSV } from '@/lib/csv'
+import { useToast } from '@/components/Toast'
+import JobControls from '@/components/JobControls'
+import Pagination from '@/components/Pagination'
 
-export default function DashboardPage() {
+function DashboardContent() {
+  const searchParams = useSearchParams()
+  const { addToast } = useToast()
+
   const [jobs, setJobs] = useState([])
+  const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
 
+  const page = parseInt(searchParams.get('page') || '1', 10)
+  const pageSize = parseInt(searchParams.get('pageSize') || '10', 10)
+
   useEffect(() => {
     const fetchJobs = async () => {
+      setLoading(true)
       try {
-        const jobs = await getJobs()
-        setJobs(jobs)
+        const params = new URLSearchParams(searchParams.toString())
+        const { data, total } = await getJobs(params)
+        setJobs(data)
+        setTotal(total)
       } catch (error) {
         console.error('Error fetching jobs:', error)
+        addToast('Failed to fetch jobs.', 'error')
       } finally {
         setLoading(false)
       }
     }
     fetchJobs()
-  }, [])
+  }, [searchParams, addToast])
 
-  const handleJobCreated = (newJob: any) => {
+  const handleJobCreated = async (newJobData: any) => {
+    const tempId = Date.now()
+    const newJob = { ...newJobData, id: tempId, isOptimistic: true }
     setJobs([newJob, ...jobs])
+    setIsModalOpen(false)
+    try {
+      const createdJob = await createJob(newJobData)
+      setJobs((prevJobs) => prevJobs.map((j) => (j.id === tempId ? createdJob : j)))
+      addToast('Job created successfully.', 'success')
+    } catch (error) {
+      setJobs((prevJobs) => prevJobs.filter((j) => j.id !== tempId))
+      addToast('Failed to create job.', 'error')
+    }
   }
 
-  const handleJobUpdated = (updatedJob: any) => {
-    setJobs(
-      jobs.map((job: any) => (job.id === updatedJob.id ? updatedJob : job))
+  const handleJobUpdated = async (jobId: number, updatedJobData: any) => {
+    const originalJobs = jobs
+    setJobs((prevJobs) =>
+      prevJobs.map((j) => (j.id === jobId ? { ...j, ...updatedJobData } : j))
     )
+    try {
+      await updateJob(jobId, updatedJobData)
+      addToast('Job updated successfully.', 'success')
+    } catch (error) {
+      setJobs(originalJobs)
+      addToast('Failed to update job.', 'error')
+    }
   }
 
-  const handleJobDeleted = (jobId: number) => {
-    setJobs(jobs.filter((job: any) => job.id !== jobId))
+  const handleJobDeleted = async (jobId: number) => {
+    const originalJobs = jobs
+    setJobs((prevJobs) => prevJobs.filter((j) => j.id !== jobId))
+    try {
+      await deleteJob(jobId)
+      addToast('Job deleted successfully.', 'success')
+    } catch (error) {
+      setJobs(originalJobs)
+      addToast('Failed to delete job.', 'error')
+    }
   }
 
   const handleDownload = async () => {
@@ -71,6 +113,7 @@ export default function DashboardPage() {
         </div>
 
         <Analytics />
+        <JobControls />
 
         {isModalOpen && (
           <JobForm
@@ -84,9 +127,9 @@ export default function DashboardPage() {
             <p>Loading jobs...</p>
           ) : jobs.length === 0 ? (
             <div className="col-span-full text-center py-16">
-              <h2 className="text-2xl font-semibold">No jobs yet</h2>
+              <h2 className="text-2xl font-semibold">No jobs found</h2>
               <p className="text-muted-foreground">
-                Add your first job to get started.
+                Try adjusting your filters or add a new job.
               </p>
             </div>
           ) : (
@@ -100,7 +143,16 @@ export default function DashboardPage() {
             ))
           )}
         </div>
+        <Pagination total={total} pageSize={pageSize} page={page} />
       </div>
     </ProtectedRoute>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
   )
 }

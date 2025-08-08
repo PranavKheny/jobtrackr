@@ -11,10 +11,51 @@ const isDemoMode = process.env.DEMO_MODE === 'true'
 router.get('/', protect, async (req, res) => {
   // @ts-ignore
   const userId = req.user.id
+  const {
+    status,
+    q,
+    sort = 'createdAt',
+    order = 'desc',
+    page = '1',
+    pageSize = '10',
+  } = req.query
+
+  const pageNumber = parseInt(page as string, 10)
+  const size = parseInt(pageSize as string, 10)
+
+  const where: any = { userId }
+
+  if (status) {
+    const statuses = (status as string).split(',')
+    where.status = { in: statuses }
+  }
+
+  if (q) {
+    where.OR = [
+      { title: { contains: q as string, mode: 'insensitive' } },
+      { company: { contains: q as string, mode: 'insensitive' } },
+      { location: { contains: q as string, mode: 'insensitive' } },
+      { notes: { contains: q as string, mode: 'insensitive' } },
+    ]
+  }
+
   const jobs = await prisma.job.findMany({
-    where: { userId },
+    where,
+    orderBy: {
+      [sort as string]: order,
+    },
+    skip: (pageNumber - 1) * size,
+    take: size,
   })
-  res.json(jobs)
+
+  const total = await prisma.job.count({ where })
+
+  res.json({
+    data: jobs,
+    total,
+    page: pageNumber,
+    pageSize: size,
+  })
 })
 
 // Add a new job
