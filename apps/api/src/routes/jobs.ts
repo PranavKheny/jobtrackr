@@ -5,6 +5,8 @@ import { protect } from '../middleware/auth'
 const router = Router()
 const prisma = new PrismaClient()
 
+const isDemoMode = process.env.DEMO_MODE === 'true'
+
 // Get all jobs for the current user
 router.get('/', protect, async (req, res) => {
   // @ts-ignore
@@ -17,6 +19,9 @@ router.get('/', protect, async (req, res) => {
 
 // Add a new job
 router.post('/', protect, async (req, res) => {
+  if (isDemoMode) {
+    return res.status(403).json({ message: 'Writes are disabled in demo mode.' })
+  }
   // @ts-ignore
   const userId = req.user.id
   const { title, company, location, status, notes } = req.body
@@ -35,6 +40,9 @@ router.post('/', protect, async (req, res) => {
 
 // Update a job
 router.put('/:id', protect, async (req, res) => {
+  if (isDemoMode) {
+    return res.status(403).json({ message: 'Writes are disabled in demo mode.' })
+  }
   const { id } = req.params
   const { title, company, location, status, notes } = req.body
   const job = await prisma.job.update({
@@ -52,6 +60,9 @@ router.put('/:id', protect, async (req, res) => {
 
 // Delete a job
 router.delete('/:id', protect, async (req, res) => {
+  if (isDemoMode) {
+    return res.status(403).json({ message: 'Writes are disabled in demo mode.' })
+  }
   const { id } = req.params
   await prisma.job.delete({
     where: { id: Number(id) },

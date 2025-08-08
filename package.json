@@ -10,7 +10,8 @@
     "build": "npm run build --workspace=web",
     "start": "npm run start --workspace=web",
     "lint": "npm run lint --workspace=web",
-    "api:dev": "npm run dev --workspace=api"
+    "api:dev": "npm run dev --workspace=api",
+    "seed": "npm run seed --workspace=database"
   },
   "devDependencies": {
     "typescript": "^5",

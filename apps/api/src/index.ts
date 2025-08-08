@@ -6,8 +6,17 @@ import cors from 'cors';
 const app = express();
 const port = process.env.PORT || 3001;
 
-app.use(cors());
+const corsOptions = {
+  origin: process.env.WEB_APP_URL || 'http://localhost:3000',
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 app.get('/', (req, res) => {
   res.send('Hello from the API!');
