@@ -10,20 +10,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum JobStatus {
+  APPLIED
+  INTERVIEWING
+  REJECTED
+  OFFER
+}
+
 model User {
-  id    String @id @unique
-  email String @unique
-  jobs  Job[]
+  id        String   @id @unique
+  email     String   @unique
+  jobs      Job[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Job {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   company   String
   location  String
-  appliedAt DateTime @default(now())
+  status    JobStatus @default(APPLIED)
+  appliedAt DateTime  @default(now())
   notes     String?
-  status    String   @default("APPLIED")
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }

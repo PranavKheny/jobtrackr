@@ -44,6 +44,15 @@ JobTrackr is a full-stack web application that helps users organize and track th
     - `api`: Express backend running on `http://localhost:3001`
     - `db`: PostgreSQL database running on `http://localhost:5432`
 
+## API Endpoints
+
+All job-related endpoints are protected and require a valid Supabase JWT.
+
+- `GET /api/jobs`: Fetch all jobs for the current user.
+- `POST /api/jobs`: Add a new job.
+- `PUT /api/jobs/:id`: Update a job.
+- `DELETE /api/jobs/:id`: Delete a job.
+
 ## Available Scripts
 
 - `npm run dev`: Starts the web app in development mode.
