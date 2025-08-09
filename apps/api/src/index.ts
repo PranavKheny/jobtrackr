@@ -2,6 +2,8 @@ import express from 'express';
 import authRouter from './routes/auth';
 import jobsRouter from './routes/jobs';
 import cors from 'cors';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
