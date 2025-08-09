@@ -5,6 +5,7 @@ import Header from "@/components/Header";
 import { ToastProvider } from "@/components/Toast";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/components/AuthProvider";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -34,18 +35,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body className={`bg-background text-foreground ${inter.className}`}>
-        <AuthProvider>
-          <ErrorBoundary>
-            <ToastProvider>
-              <div className="flex flex-col min-h-screen">
-                <Header />
-                <main className="flex-grow container mx-auto p-4">{children}</main>
-              </div>
-            </ToastProvider>
-          </ErrorBoundary>
-        </AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <ErrorBoundary>
+              <ToastProvider>
+                <div className="flex flex-col min-h-screen">
+                  <Header />
+                  <main className="flex-grow container mx-auto p-4">{children}</main>
+                </div>
+              </ToastProvider>
+            </ErrorBoundary>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

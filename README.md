@@ -6,7 +6,11 @@ JobTrackr is a full-stack web application that helps users organize and track th
 
 ---
 
-![Screenshot of JobTrackr Dashboard](https://via.placeholder.com/1200x600.png?text=JobTrackr+Dashboard+Screenshot)
+## UI Tour
+
+| Landing Page                                                                             | Dashboard                                                                                | Add/Edit Modal                                                                           |
+| ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| ![Screenshot of Landing Page](https://via.placeholder.com/600x400.png?text=Landing+Page) | ![Screenshot of Dashboard](https://via.placeholder.com/600x400.png?text=Dashboard)       | ![Screenshot of Add/Edit Modal](https://via.placeholder.com/600x400.png?text=Add/Edit+Modal) |
 
 ## Features
 
@@ -20,6 +24,7 @@ JobTrackr is a full-stack web application that helps users organize and track th
 - **Demo Mode**: A read-only demo mode to showcase the application.
 - **Component Library**: A small library of reusable UI components for a consistent look and feel.
 - **Form Validation**: Robust form validation using `react-hook-form` and `zod`.
+- **Dark Mode**: Light and dark mode support.
 
 ## Accessibility & UX
 

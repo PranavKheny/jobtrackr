@@ -15,6 +15,7 @@ enum JobStatus {
   INTERVIEWING
   REJECTED
   OFFER
+  OTHER
 }
 
 model User {
@@ -29,9 +30,10 @@ model Job {
   id        Int       @id @default(autoincrement())
   title     String
   company   String
-  location  String
+  location  String?
   status    JobStatus @default(APPLIED)
   appliedAt DateTime  @default(now())
+  jobLink   String?
   notes     String?
   userId    String
   user      User      @relation(fields: [userId], references: [id])
