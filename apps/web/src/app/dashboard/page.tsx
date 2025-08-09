@@ -1,11 +1,15 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getJobs, createJob, updateJob, deleteJob } from '@/lib/api'
-import { JobItem } from '@/components/JobItem'
+
+// ✅ default export, no braces
+import JobItem from '@/components/JobItem'
 import JobForm from '@/components/JobForm'
+
 // import Analytics from '@/components/Analytics'
 import { useToast } from '@/components/Toast'
 import JobControls from '@/components/JobControls'
@@ -44,9 +48,10 @@ function DashboardContent() {
   }, [searchParams, addToast])
 
   const handleJobCreated = async (newJobData: any) => {
-    const tempId = Date.now()
+    // ✅ make optimistic ID a string to match server IDs
+    const tempId = `temp-${Date.now()}`
     const newJob = { ...newJobData, id: tempId, isOptimistic: true }
-    setJobs([newJob, ...jobs])
+    setJobs((prev) => [newJob, ...prev])
     setIsModalOpen(false)
     try {
       const createdJob = await createJob(newJobData)
@@ -58,28 +63,27 @@ function DashboardContent() {
     }
   }
 
-  const handleJobUpdated = async (jobId: number, updatedJobData: any) => {
-    const originalJobs = [...jobs]
-    setJobs((prevJobs) =>
-      prevJobs.map((j) => (j.id === jobId ? { ...j, ...updatedJobData } : j))
-    )
+  // ✅ string IDs (Prisma model uses String/cuid)
+  const handleJobUpdated = async (jobId: string, updatedJobData: any) => {
+    const original = [...jobs]
+    setJobs((prev) => prev.map((j) => (j.id === jobId ? { ...j, ...updatedJobData } : j)))
     try {
       await updateJob(jobId, updatedJobData)
       addToast('Job updated successfully.', 'success')
-    } catch (error) {
-      setJobs(originalJobs)
+    } catch {
+      setJobs(original)
       addToast('Failed to update job.', 'error')
     }
   }
 
-  const handleJobDeleted = async (jobId: number) => {
-    const originalJobs = [...jobs]
-    setJobs((prevJobs) => prevJobs.filter((j) => j.id !== jobId))
+  const handleJobDeleted = async (jobId: string) => {
+    const original = [...jobs]
+    setJobs((prev) => prev.filter((j) => j.id !== jobId))
     try {
       await deleteJob(jobId)
       addToast('Job deleted successfully.', 'success')
-    } catch (error) {
-      setJobs(originalJobs)
+    } catch {
+      setJobs(original)
       addToast('Failed to delete job.', 'error')
     }
   }
@@ -102,13 +106,14 @@ function DashboardContent() {
 
       <Card>
         <CardContent>
-          <div className="hidden md:table w-full">
+          {/* Desktop table */}
+          <div className="hidden w-full md:table">
             <div className="md:table-header-group">
               <div className="md:table-row">
-                <div className="md:table-cell p-4 font-semibold">Job Title</div>
-                <div className="md:table-cell p-4 font-semibold">Status</div>
-                <div className="md:table-cell p-4 font-semibold">Applied Date</div>
-                <div className="md:table-cell p-4 font-semibold text-right">Actions</div>
+                <div className="p-4 font-semibold md:table-cell">Job Title</div>
+                <div className="p-4 font-semibold md:table-cell">Status</div>
+                <div className="p-4 font-semibold md:table-cell">Applied Date</div>
+                <div className="p-4 text-right font-semibold md:table-cell">Actions</div>
               </div>
             </div>
             <div className="md:table-row-group">
@@ -122,7 +127,9 @@ function DashboardContent() {
               ))}
             </div>
           </div>
-          <div className="md:hidden space-y-4">
+
+          {/* Mobile cards */}
+          <div className="space-y-4 md:hidden">
             {jobs.map((job) => (
               <JobItem
                 key={job.id}
@@ -134,13 +141,18 @@ function DashboardContent() {
           </div>
 
           {loading && <p className="p-4 text-center">Loading jobs...</p>}
+
           {!loading && jobs.length === 0 && (
-            <div className="text-center py-16">
+            <div className="py-16 text-center">
               <h2 className="text-2xl font-semibold">
-                {searchParams.toString() ? 'No jobs match your filters' : 'You haven’t added any jobs yet'}
+                {searchParams.toString()
+                  ? 'No jobs match your filters'
+                  : 'You haven’t added any jobs yet'}
               </h2>
-              <p className="text-muted-foreground mt-2">
-                {searchParams.toString() ? 'Try adjusting your filters or clearing them.' : 'Get started by adding your first application.'}
+              <p className="mt-2 text-muted-foreground">
+                {searchParams.toString()
+                  ? 'Try adjusting your filters or clearing them.'
+                  : 'Get started by adding your first application.'}
               </p>
               {!searchParams.toString() && (
                 <Button className="mt-4" onClick={() => setIsModalOpen(true)}>

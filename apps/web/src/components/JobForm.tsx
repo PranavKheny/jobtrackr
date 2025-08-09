@@ -1,14 +1,15 @@
+// apps/web/src/components/JobForm.tsx
 'use client'
 
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import * as z from 'zod'
 import { Modal } from './ui/Modal'
 import { Button } from './ui/Button'
 import { Input } from './ui/Input'
 import { Select } from './ui/Select'
 import { DatePicker } from './ui/DatePicker'
-import { useState } from 'react'
 
 const jobSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -20,15 +21,26 @@ const jobSchema = z.object({
   notes: z.string().optional(),
 })
 
+type FormData = z.infer<typeof jobSchema>
+
+export type JobFormProps = {
+  isOpen: boolean
+  onClose: () => void
+  onJobCreated: (data: FormData) => Promise<void>
+  // ✅ optional for create mode
+  onJobUpdated?: (id: string, data: FormData) => Promise<void>
+  job?: any
+}
+
 export default function JobForm({
-  job,
+  isOpen,
+  onClose,
   onJobCreated,
   onJobUpdated,
-  onClose,
-  isOpen,
-}: any) {
+  job,
+}: JobFormProps) {
   const [appliedAt, setAppliedAt] = useState<Date | undefined>(
-    job ? new Date(job.appliedAt) : new Date()
+    job?.appliedAt ? new Date(job.appliedAt) : new Date()
   )
 
   const {
@@ -36,34 +48,31 @@ export default function JobForm({
     handleSubmit,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm({
+  } = useForm<FormData>({
     resolver: zodResolver(jobSchema),
     defaultValues: {
-      title: job?.title || '',
-      company: job?.company || '',
-      location: job?.location || '',
-      status: job?.status || 'APPLIED',
-      appliedAt: job ? new Date(job.appliedAt) : new Date(),
-      jobLink: job?.jobLink || '',
-      notes: job?.notes || '',
+      title: job?.title ?? '',
+      company: job?.company ?? '',
+      location: job?.location ?? '',
+      status: job?.status ?? 'APPLIED',
+      appliedAt: job?.appliedAt ? new Date(job.appliedAt) : new Date(),
+      jobLink: job?.jobLink ?? '',
+      notes: job?.notes ?? '',
     },
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     setValue('appliedAt', appliedAt || new Date())
   }, [appliedAt, setValue])
 
-  const onSubmit = async (data: any) => {
-    try {
-      if (job) {
-        await onJobUpdated(job.id, data)
-      } else {
-        await onJobCreated(data)
-      }
+  const onSubmit = async (data: FormData) => {
+    if (job && onJobUpdated) {
+      await onJobUpdated(String(job.id), data)
       onClose()
-    } catch (error) {
-      // Error is handled by optimistic UI in the dashboard
+      return
     }
+    await onJobCreated(data)
+    onClose()
   }
 
   return (
@@ -71,19 +80,19 @@ export default function JobForm({
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <Input {...register('title')} placeholder="Job Title" />
-          {errors.title && (
-            <p className="text-sm text-red-500 mt-1">{errors.title.message as string}</p>
-          )}
+          {errors.title && <p className="mt-1 text-sm text-red-500">{errors.title.message}</p>}
         </div>
+
         <div>
           <Input {...register('company')} placeholder="Company" />
-          {errors.company && (
-            <p className="text-sm text-red-500 mt-1">{errors.company.message as string}</p>
-          )}
+          {errors.company && <p className="mt-1 text-sm text-red-500">{errors.company.message}</p>}
         </div>
+
         <Input {...register('location')} placeholder="Location (e.g., San Francisco, CA)" />
         <Input {...register('jobLink')} placeholder="Link to Job Posting" />
+
         <DatePicker date={appliedAt} setDate={setAppliedAt} />
+
         <Select {...register('status')}>
           <option value="APPLIED">Applied</option>
           <option value="INTERVIEWING">Interviewing</option>
@@ -91,17 +100,19 @@ export default function JobForm({
           <option value="REJECTED">Rejected</option>
           <option value="OTHER">Other</option>
         </Select>
+
         <textarea
           {...register('notes')}
           placeholder="Notes"
-          className="w-full p-2 bg-input rounded-md min-h-[100px]"
+          className="min-h-[100px] w-full rounded-md bg-input p-2"
         />
+
         <div className="flex gap-4">
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
           </Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : job ? 'Update Job' : 'Add Job'}
+            {isSubmitting ? 'Saving…' : job ? 'Update Job' : 'Add Job'}
           </Button>
         </div>
       </form>

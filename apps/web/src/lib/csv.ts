@@ -1,27 +1,47 @@
-import Papa from 'papaparse'
-import { getJobs } from './api'
+// Accept either an array of jobs or an object { data: Job[]; ... }
+type JobsInput<T = any> = T[] | { data?: T[]; [k: string]: any }
 
-export const downloadJobsCSV = async () => {
-  const jobs = await getJobs()
+function toRowsArray<T>(input: JobsInput<T>): T[] {
+  if (Array.isArray(input)) return input
+  return input?.data ?? []
+}
 
-  const data = jobs.map((job: any) => ({
-    Title: job.title,
-    Company: job.company,
-    Location: job.location,
-    Status: job.status,
-    'Applied Date': new Date(job.appliedAt).toLocaleDateString(),
-    Notes: job.notes,
-  }))
+function escapeCsv(value: unknown): string {
+  if (value == null) return ''
+  const s = String(value)
+  // Quote if contains comma, quote or newline
+  if (/[",\n]/.test(s)) {
+    return `"${s.replace(/"/g, '""')}"`
+  }
+  return s
+}
 
-  const csv = Papa.unparse(data)
+export function jobsToCSV(input: JobsInput<any>): string {
+  const rows = toRowsArray(input)
 
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const link = document.createElement('a')
-  const url = URL.createObjectURL(blob)
-  link.setAttribute('href', url)
-  link.setAttribute('download', 'jobs.csv')
-  link.style.visibility = 'hidden'
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
+  const headers = [
+    'Title',
+    'Company',
+    'Status',
+    'Location',
+    'Applied At',
+    'Job Link',
+    'Notes',
+  ]
+
+  const lines = rows.map((job: any) => {
+    const appliedAt =
+      job?.appliedAt ? new Date(job.appliedAt).toISOString().slice(0, 10) : ''
+    return [
+      escapeCsv(job?.title),
+      escapeCsv(job?.company),
+      escapeCsv(job?.status),
+      escapeCsv(job?.location),
+      escapeCsv(appliedAt),
+      escapeCsv(job?.jobLink),
+      escapeCsv(job?.notes),
+    ].join(',')
+  })
+
+  return [headers.join(','), ...lines].join('\n')
 }

@@ -1,45 +1,49 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+import supabase from '@/lib/supabase'
 import type { Session } from '@supabase/supabase-js'
 
-interface AuthContextType {
+type AuthCtx = {
   session: Session | null
+  loading: boolean
 }
 
-const AuthContext = createContext<AuthContextType | null>(null)
+const AuthContext = createContext<AuthCtx>({ session: null, loading: true })
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const supabase = createClient()
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // use the already-created client
   const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+    let mounted = true
+
+    // initialize from current session
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return
+      setSession(data.session ?? null)
+      setLoading(false)
     })
 
-    // Initial session fetch
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
+    // keep session in sync
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s ?? null)
     })
 
     return () => {
-      subscription.unsubscribe()
+      mounted = false
+      sub.subscription.unsubscribe()
     }
-  }, [supabase])
+  }, [])
 
   return (
-    <AuthContext.Provider value={{ session }}>{children}</AuthContext.Provider>
+    <AuthContext.Provider value={{ session, loading }}>
+      {children}
+    </AuthContext.Provider>
   )
 }
 
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
+export function useAuth() {
+  return useContext(AuthContext)
 }

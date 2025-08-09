@@ -1,60 +1,21 @@
 'use client'
 
-import { createClient } from '@/lib/supabase'
+import React, { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useAuth } from './AuthProvider'
 
-export default function ProtectedRoute({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const supabase = createClient()
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const { session, loading } = useAuth()
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (session) {
-        setUser(session.user)
-      }
-      setLoading(false)
+    if (!loading && !session) {
+      router.replace('/login')
     }
-    checkUser()
+  }, [loading, session, router])
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        if (event === 'SIGNED_IN') {
-          setUser(session?.user ?? null)
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null)
-          router.push('/login')
-        }
-      }
-    )
+  if (loading) return <div className="p-6">Loading…</div>
+  if (!session) return null
 
-    return () => {
-      authListener.subscription.unsubscribe()
-    }
-  }, [router, supabase])
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login')
-    }
-  }, [user, loading, router])
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
-
-  if (user) {
-    return <>{children}</>
-  }
-
-  return null
+  return <>{children}</>
 }

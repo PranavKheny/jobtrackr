@@ -1,56 +1,73 @@
-import { createClient } from './supabase'
+// apps/web/src/lib/api.ts
+import { supabase } from '@/lib/supabase'
 
-const supabase = createClient()
+const BASE =
+  (process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '') ||
+    'http://localhost:3001') as string
 
-const getHeaders = async () => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
-  return {
+async function authHeader(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession()
+  const token = data.session?.access_token
+  // Always return a plain Record<string,string>
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
+export async function getJobs(params?: URLSearchParams) {
+  const baseHeaders: Record<string, string> = {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${session?.access_token}`,
   }
+  const headers: Record<string, string> = {
+    ...baseHeaders,
+    ...(await authHeader()),
+  }
+
+  const url = `${BASE}/api/jobs${params ? `?${params.toString()}` : ''}`
+  const res = await fetch(url, { headers, cache: 'no-store' })
+  if (!res.ok) throw new Error('Failed to fetch jobs')
+  return res.json() as Promise<{ data: any[]; total: number; page: number; pageSize: number }>
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001'
+export async function createJob(payload: any) {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(await authHeader()),
+  }
 
-export const getJobs = async (params: any) => {
-  const headers = await getHeaders()
-  const query = new URLSearchParams(params).toString()
-  const res = await fetch(`${API_URL}/api/jobs?${query}`, { headers })
-  return res.json()
-}
-
-export const createJob = async (job: any) => {
-  const headers = await getHeaders()
-  const res = await fetch(`${API_URL}/api/jobs`, {
+  const res = await fetch(`${BASE}/api/jobs`, {
     method: 'POST',
     headers,
-    body: JSON.stringify(job),
+    body: JSON.stringify(payload),
   })
-  return res.json()
+  if (!res.ok) throw new Error('Failed to create job')
+  const json = await res.json()
+  return json.data ?? json
 }
 
-export const updateJob = async (id: number, job: any) => {
-  const headers = await getHeaders()
-  const res = await fetch(`${API_URL}/api/jobs/${id}`, {
+export async function updateJob(id: string, payload: any) {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(await authHeader()),
+  }
+
+  const res = await fetch(`${BASE}/api/jobs/${id}`, {
     method: 'PUT',
     headers,
-    body: JSON.stringify(job),
+    body: JSON.stringify(payload),
   })
-  return res.json()
+  if (!res.ok) throw new Error('Failed to update job')
+  const json = await res.json()
+  return json.data ?? json
 }
 
-export const deleteJob = async (id: number) => {
-  const headers = await getHeaders()
-  await fetch(`${API_URL}/api/jobs/${id}`, {
+export async function deleteJob(id: string) {
+  const headers: Record<string, string> = {
+    ...(await authHeader()),
+  }
+
+  const res = await fetch(`${BASE}/api/jobs/${id}`, {
     method: 'DELETE',
     headers,
   })
-}
-
-export const getJobStats = async () => {
-  const headers = await getHeaders()
-  const res = await fetch(`${API_URL}/api/jobs/stats`, { headers })
-  return res.json()
+  if (!res.ok) throw new Error('Failed to delete job')
+  return true
 }
