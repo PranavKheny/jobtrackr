@@ -63,3 +63,4 @@ mlruns/
 *.pt
 *.bin
 *.pkl
+/data
