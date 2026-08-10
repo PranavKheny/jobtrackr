@@ -1,57 +1,64 @@
-# JobTrackr — Automated Application Intelligence System
+# JobTrackr
 
-An end-to-end MLOps pipeline and application intelligence system designed to ingest, classify, and track job application lifecycles from raw email streams using machine learning.
+An end-to-end machine learning pipeline and API designed to classify and track job application lifecycles from text streams. 
+
+This repository demonstrates production-grade MLOps practices, focusing on environment reproducibility, security, and automated deployment pipelines.
 
 ---
 
 ## System Architecture
 
-[ Raw Gmail Stream / Ingestion ]
-               │
-               ▼
-   [ Data Pipeline (src/pipelines/prepare_data.py) ] ──> [ Processed CSV Dataset ]
-                                                                   │
-                                                                   ▼
-   [ Model Inference Engine (FastAPI) ] <── [ Model Artifacts ] <── [ MLflow Training Pipeline ]
-               │
-               ▼
-   [ Next.js Dashboard (apps/web) ]
+* **Data Versioning:** Datasets are decoupled from version control and managed via Data Version Control (DVC) to maintain an immutable data history.
+* **ML Pipeline:** Built with Python, Pandas, and Scikit-Learn. The pipeline utilizes TF-IDF vectorization and a class-balanced Random Forest classifier.
+* **Experiment Tracking:** Integrated with MLflow to automatically track hyperparameters, validation metrics, and serialized model artifacts.
+* **Inference API:** A FastAPI application exposing a /predict endpoint. State management is explicitly defined to avoid global variables and ensure thread safety.
+* **Containerization:** Orchestrated via Docker Compose. The API image runs on a restricted, non-root user account to adhere to zero-trust security principles.
+* **CI/CD Pipeline:** Automated via GitHub Actions to enforce static code analysis (Ruff), contract testing (Pytest), and automated Docker image compilation.
 
 ---
 
-## Tech Stack & Engineering Standards
+## Local Development
 
-* ML & Pipeline Engine: Python 3.13, Pandas, Scikit-Learn, MLflow
-* API Backend: FastAPI, Pydantic (Strict Schema Validation), Uvicorn
-* Frontend Dashboard: Next.js, TypeScript, TailwindCSS
-* Containerization & Ops: Docker, Docker Compose, GitHub Actions CI
-* Engineering Principles: 12-Factor App, Weak Supervision Labeling, Zero-Trust Secret Isolation
+### 1. Environment Setup
+Dependencies are strictly pinned to ensure complete environment reproducibility.
+
+```bash
+python -m venv .venv
+# Activate the virtual environment
+# Windows: .\.venv\Scripts\Activate.ps1
+# Mac/Linux: source .venv/bin/activate
+
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 2. Retrieve Data
+Datasets are tracked via DVC. Pull the latest data snapshot before running the pipeline:
+
+```bash
+dvc pull
+```
+
+### 3. Run the ML Pipelines
+Process the raw data and train the classification model. Metrics and artifacts will be logged locally to MLflow.
+
+```bash
+python src/pipelines/prepare_data.py
+python src/pipelines/train.py
+```
+
+### 4. Start the Inference Server
+Initialize the FastAPI service using the provided Docker configuration:
+
+```bash
+docker-compose up --build
+```
+The API will be available at http://localhost:8000. You can verify the model status by navigating to http://localhost:8000/health.
 
 ---
 
-## Dataset & Classifier Status
+## Testing and Security
 
-* Dataset Volume: 1,122 historical email records parsed & categorized.
-* Target Categories: applied_no_reply, rejected, interviews, rejected_after_interview, micro1_ai, spam.
-* Experiment Tracking: Integrated with MLflow for parameter, metric, and model artifact logging.
-
----
-
-## Quick Start (Local Development)
-
-1. Environment Setup:
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   pip install -r requirements.txt
-
-2. Ingest & Prepare Data:
-   python src/pipelines/prepare_data.py
-
-3. Model Training & Metric Logging:
-   python src/pipelines/train.py
-
----
-
-## Security & Compliance
-* All credentials, OAuth tokens (*.pickle), and user data dumps are strictly excluded via .gitignore.
-* No hardcoded API keys or environment secrets reside in source control.
+* **Testing:** Model evaluation is handled during the training phase via MLflow. Pipeline contract and robustness testing is executed via Pytest. Run tests locally using `pytest tests/`.
+* **Security Execution:** The containerized API runs under a strictly defined non-root user and group.
+* **Dependency Management:** All packages in requirements.txt are pinned to specific versions to prevent pipeline drift and mitigate supply chain vulnerabilities.
